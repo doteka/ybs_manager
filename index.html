@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="kr">
+    <meta charset="utf-8">
+    <title>양구여고</title>
+    <script src="jquery.js" ></script>
+    <style>
+        @font-face {
+            font-family: 'KyoboHand';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/KyoboHand.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cafe24Shiningstar';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Shiningstar.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'BMEULJIRO';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/BMEULJIRO.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 3;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-image: url("modal_POST_IT.png");
+            background-size: cover;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 520px;
+            height: 380px;
+
+        }
+        .close {
+            color: red;
+            float: right;
+            margin-right: -10px;
+            margin-top: -20px;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #modal_ONE_GRADE,
+        #modal_TWO_GRADE,
+        #modal_THREE_GRADE {
+            width: 30px;
+            display: block;
+            padding-left: 5px;
+            padding-bottom: 7px;
+        }
+    </style>
+
+    <script>
+
+        //var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800344&AA_FROM_YMD=20191226&AA_TO_YMD=20191227";
+        var date = 201912;
+        var c_year = 2019;
+        var c_month = 12;
+        var c_date = 26;
+        var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_YMD="+date;
+        var i;
+        var len;
+        var str = "";
+        var doc_write=``;
+        var date_String;
+        var previous_Year;
+        var Previous_Month;
+        let h_date = new Date();
+        var parti_Grade = "";
+        var tmp;
+
+
+
+        c_year = h_date.getFullYear();
+        c_month = h_date.getMonth() + 1;
+        c_date = h_date.getDate();
+
+        previous_Year = h_date.getFullYear();
+        previous_Month = 2;
+
+        function information_Window(a) {
+            var plus_date = String(a.id).split("/")[0];
+            var w = 0;
+
+            var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_YMD="+plus_date;
+            console.log("LINK : " + link);
+            $.getJSON(link,
+                function(data) {
+                    if(!data.SchoolSchedule)
+                        console.log("오류가 발생했습니다."); // 오류가 발생했습니다. 추가 해주기
+
+                    if(data.SchoolSchedule[0].head[0].list_total_count > 1) {
+                        for(var i=0;i<data.SchoolSchedule[0].head[0].list_total_count;i++) {
+                            var plus_Event = String(a.id).split("/")[1];
+                            if(data.SchoolSchedule[1].row[i].EVENT_NM == plus_Event) {
+                                w = i;
+                                i=9999;
+                            }
+                        }
+                    } else
+                        w = 0;
+
+                    document.getElementById("modal_ONE_GRADE").src = "check_OFF.png";
+                    document.getElementById("modal_TWO_GRADE").src = "check_OFF.png";
+                    document.getElementById("modal_THREE_GRADE").src = "check_OFF.png";
+
+                    document.getElementById("modal_Date").innerText = print_Date(data.SchoolSchedule[1].row[w].AA_YMD);
+                    document.getElementById("modal_Event").innerText = data.SchoolSchedule[1].row[w].EVENT_NM;
+                    if(data.SchoolSchedule[1].row[w].ONE_GRADE_EVENT_YN == "Y")
+                        document.getElementById("modal_ONE_GRADE").src = "check_ON.png";
+                    if(data.SchoolSchedule[1].row[w].TW_GRADE_EVENT_YN == "Y")
+                        document.getElementById("modal_TWO_GRADE").src = "check_ON.png";
+                    if(data.SchoolSchedule[1].row[w].THREE_GRADE_EVENT_YN == "Y")
+                        document.getElementById("modal_THREE_GRADE").src = "check_ON.png";
+
+                    document.getElementById("modal_ONE_GRADE").style.display = "block";
+                    document.getElementById("modal_TWO_GRADE").style.display = "block";
+                    document.getElementById("modal_THREE_GRADE").style.display = "block";
+                    document.getElementById("calendar_Modal").style.display = "block";
+                });
+        }
+        function calendar_Modal_Close() {
+            document.getElementById("calendar_Modal").style.display = "none";
+            document.getElementById("modal_ONE_GRADE").style.display = "none";
+            document.getElementById("modal_TWO_GRADE").style.display = "none";
+            document.getElementById("modal_THREE_GRADE").style.display = "none";
+        }
+        $(document).keydown(function(event) {
+            if(event.keyCode == 27 || event.which == 27) {
+                if(document.getElementById("calendar_Modal").style.display == "block")
+                    calendar_Modal_Close();
+            }
+        });
+
+        function print_Date(date) {
+            var print_Date = "";
+            print_Date = String(date[0]) + String(date[1]) + String(date[2]) + String(date[3]) + "년 " + String(date[4]) + String(date[5]) + "월 " + String(date[6]) + String(date[7]) + "일";
+            return print_Date;
+        }
+        function previous() {
+            previous_Year = c_year;
+            previous_Month = c_month;
+        }
+
+        function prev_Btn() {
+            previous();
+            if(c_month == 1) {
+                c_month = 12;
+                c_year--;
+            } else {
+                c_month--;
+            }
+            load();
+        }
+        function next_Btn() {
+            previous();
+            if(c_month == 12) {
+                c_month = 1;
+                c_year++;
+            } else {
+                c_month++;
+            }
+            load();
+        }
+        function error(data) {
+            var err_msg;
+            if(data.RESULT.CODE == "INFO-200")
+                err_msg = "해당하는 데이터가 없습니다.\n일정은 올해 일정과 전년도의 일정만 공개됩니다.";
+            doc_write = "";
+            //doc_write += `<h2 style="color:RED">오류가 발생했습니다. 오류 코드와 오류메세지와 함께 개발자에게 문의하시길 바랍니다.</h2><h4>새로고침하면 날짜가 초기화됩니다.</h4>`;
+            //doc_write += `<h5 style="font-size: 20px; color:salmon"><br><br>ERROR_CODE : ${data.RESULT.CODE}<br>ERROR_MESSAGE : ${data.RESULT.MESSAGE}</h5>`;
+            /* document.open();
+            document.write(doc_write);
+            document.close(); */
+            c_year = h_date.getFullYear();
+            c_month = h_date.getMonth() + 1;
+            // 임의대로 날짜 지정
+            /*c_year = 2020;
+            c_month = 3;*/
+            // 나중에 현재 날짜에 맞게 처리
+            alert(err_msg);
+            c_year = previous_Year;
+            c_month = previous_Month;
+            load();
+        }
+
+        function today_EVENT(data) {
+             var today_Year = h_date.getFullYear();
+             var today_Month = h_date.getMonth() + 1;
+             var today_Date = h_date.getDate();
+             var today = "";
+             var event_Name = "";
+             var cnt = 0;
+             var len = data.SchoolSchedule[0].head[0].list_total_count;
+
+             if(today_Month < 10)
+                 today_Month = "0" + today_Month;
+             if(today_Date < 10)
+                 today_Day = "0" + today_Date;
+            today = String(today_Year) + String(today_Month) + String(today_Date);
+
+            for(i=0;i<len;i++) {
+                if(data.SchoolSchedule[1].row[i].AA_YMD == today) {
+                    console.log("TODAY : ?  " + today);
+                    event_Name = data.SchoolSchedule[1].row[i].EVENT_NM;
+                    cnt = 1;
+                }
+            }
+            if(cnt == 0 || event_Name == "토요휴업일")
+                event_Name = "일정 없음";
+            doc_write += `<h1 style="color: salmon">오늘 일정 : ` + event_Name + "(" + print_Date(today)+")"+`</h1><br>`;
+            document.getElementById("toDay_Event").innerText = `오늘 일정 : ` + event_Name + `(${print_Date(today)})`;
+        }
+        function date_Format(year, month, date) {
+            var r_Date="";
+
+            if(month < 10)
+                r_Date = String(year) + "0" + String(month);
+            else
+                r_Date = String(year) + String(month);
+
+            if(date != 0) {
+                if(date < 10)
+                    r_Date = r_Date + "0" + String(date);
+                else
+                    r_Date = r_Date + String(date);
+            }
+
+            return r_Date;
+        }
+        function calendar_Load(toDay, checkDay, callback) {
+            var n_link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_FROM_YMD="+toDay+"&AA_TO_YMD="+checkDay;
+            $.getJSON(n_link,
+                function(data) {
+                    callback(data);
+            });
+        }
+        function next_EVENT() {
+            var toDay_Year = h_date.getFullYear();
+            var toDay_Month = h_date.getMonth() + 1;
+            var toDay_Date = h_date.getDate();
+            var toDay = "";
+            var check_Year = toDay_Year;
+            var check_Month = toDay_Month;
+            var checkDay="";
+            var eventNM="일정 없음";
+            var eventDATE=" ";
+
+            toDay = date_Format(toDay_Year, toDay_Month, toDay_Date);
+
+            for(var i=0;i<3;i++) {
+                if(check_Month == 12) {
+                    check_Month = 1;
+                    check_Year++;
+                } else {
+                    check_Month++;
+                }
+            }
+            checkDay = date_Format(check_Year, check_Month, 0);
+            calendar_Load(toDay, checkDay, function(data) {
+                if(!data.SchoolSchedule) {
+                    eventNM = "일정 없음";
+                    eventDATE = " ";
+                }
+                else {
+                    var len = data.SchoolSchedule[0].head[0].list_total_count;
+                    for(var i=0;i<len;i++) {
+                        var data_Month = String(data.SchoolSchedule[1].row[i].AA_YMD[4]) + String(data.SchoolSchedule[1].row[i].AA_YMD[5]);
+                        var data_Date = String(data.SchoolSchedule[1].row[i].AA_YMD[6]) + String(data.SchoolSchedule[1].row[i].AA_YMD[7]);
+
+                        data_Date *= 1;
+                        if(toDay_Month != data_Month)
+                            toDay_Date = 1;
+                        if(toDay_Date < data_Date && data.SchoolSchedule[1].row[i].EVENT_NM != "토요휴업일") {
+                            eventNM = data.SchoolSchedule[1].row[i].EVENT_NM;
+                            eventDATE = data.SchoolSchedule[1].row[i].AA_YMD;
+                            i = 999;
+                        }
+                    }
+                }
+                if(eventDATE != " ")
+                    document.getElementById("next_Event").innerText = `다음 일정 : ` + eventNM + `(${print_Date(eventDATE)})`;
+                else
+                    document.getElementById("next_Event").innerText = `다음 일정 : ` + eventNM;
+
+            });
+        }
+
+        function load() {
+            if(c_month < 10)
+                date = String(c_year) + "0" + String(c_month);
+            else
+                date = String(c_year) + String(c_month);
+
+            console.log(date);
+            link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_YMD="+date;
+
+            doc_write = "";
+            $.getJSON(link,
+                function(data) {
+                    if(!data.SchoolSchedule)
+                        error(data);
+
+                    else {
+                        today_EVENT(data);
+                        next_EVENT();
+                    }
+
+
+                    len = data.SchoolSchedule[0].head[0].list_total_count;
+
+                    doc_write += `<button onclick="prev_Btn()">이전</button>`+"\n";
+                    doc_write += `<button onclick="next_Btn()">다음</button>` + "\n";
+
+                    console.log(doc_write);
+
+                    //doc_write += `<table border="1"> <th>일정</th><th>행사</th>`;
+                    //document.open();
+
+                    //document.write("<button>이전</button>");
+                    //document.write("<button>다음</button>");
+
+                    doc_write = `<th>일정</th><th>행사</th>`; // 테스트용 doc_write;
+                    document.getElementById("text_Year").innerText = `${c_year}년`;
+                    document.getElementById("text_Month").innerText = `${(c_month)*1}월`
+                    for(i=0;i<len;i++) {
+                        if(data.SchoolSchedule[1].row[i].EVENT_NM != "") {  // 토요휴업일을 제외할거면 "" 사이에 토요휴업일 작성
+                            //date_String = data.SchoolSchedule[1].row[i].AA_YMD[0] + data.SchoolSchedule[1].row[i].AA_YMD[1] + data.SchoolSchedule[1].row[i].AA_YMD[2] + data.SchoolSchedule[1].row[i].AA_YMD[3] +"년 " + data.SchoolSchedule[1].row[i].AA_YMD[4] + data.SchoolSchedule[1].row[i].AA_YMD[5]+"월 " + data.SchoolSchedule[1].row[i].AA_YMD[6] + data.SchoolSchedule[1].row[i].AA_YMD[7]+"일";
+                            date_String = print_Date(data.SchoolSchedule[1].row[i].AA_YMD);
+
+
+
+                            doc_write += `<tr id="${data.SchoolSchedule[1].row[i].AA_YMD+"/"+data.SchoolSchedule[1].row[i].EVENT_NM}" onClick="information_Window(this)" >`;
+                            doc_write += `<td>${date_String}</td><td>${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
+                            //doc_write += `<td>${data.SchoolSchedule[1].row[i].AA_YMD}</td><td>${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
+                            doc_write += `</tr>`;
+
+                            //doc_write += (`<h4>일정 : ${data.SchoolSchedule[1].row[i].AA_YMD}<br>일정 이름 : ${data.SchoolSchedule[1].row[i].EVENT_NM}<br></h4>`);
+                            //document.write(`<h4>일정 : ${data.SchoolSchedule[1].row[i].AA_YMD}<br>일정 이름 : ${data.SchoolSchedule[1].row[i].EVENT_NM}</h4>`);
+                            //str = str + "일정 : " + data.SchoolSchedule[1].row[i].AA_YMD +"\n일정 이름 : " + data.SchoolSchedule[1].row[i].EVENT_NM + " \n";
+                            //console.log("일정 : " + data.SchoolSchedule[1].row[i].AA_YMD + "\n일정 이름 : " + data.SchoolSchedule[1].row[i].EVENT_NM);
+                        }
+                    }
+                    document.getElementById("calendar_Table").innerHTML = doc_write;
+
+                    //document.write(doc_write);
+                    //document.close();
+
+
+                })
+            .fail(function (xhr, status, errorThrown) {
+                console.log("[Error] " + xhr + " " + status + " " + errorThrown);
+            });
+        }
+        load();
+    </script>
+
+    <body>
+        <h1 id="toDay_Event" style="color:salmon">오늘 일정 : </h1>
+        <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>
+        <h4>테스트으ㅡ으으으ㅡ으</h4>
+        <div style="width: 500px; height: 100px">
+            <button onclick="prev_Btn()" style="float: left;">이전</button>
+            <h3 style="float: left; font-family: BMEULJIRO; font-size: 100%;">
+                <a id="text_Year">년</a>
+                <br>
+                <a id="text_Month">월</a>
+            </h3>
+            <button onclick="next_Btn()" style="float: left;">다음</button>
+        </div>
+
+        <div style="clear: both" >
+            <table border="1" id="calendar_Table">
+            </table>
+        </div>
+
+        <h5 style="font-family: KyoboHand; margin-top: 95px; color: darkgray">
+            Made by Team
+            <a style="font-size: 100px; color: skyblue;">OUR:M</a><br>
+<!--            Made by Team-->
+<!--            <a style="font-size: 100px; color: lightskyblue;">OUR:M</a><br>-->
+            [Developer]<br>
+            강동준<br>
+            doteka@gwnu.ac.kr
+        </h5>
+
+        <h5 style="font-family: Cafe24Shiningstar; color: salmon; font-size: 130%" >
+            [Special Thanks]<br>
+            <a style="color: mediumvioletred">Park H J</a>
+            <br>
+            <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
+            <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
+            <a style="color: deepskyblue">아우름</a>
+            <br>
+            <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
+            <a style="color: darkgray;">2020 2학기 기말고사</a>
+        </h5>
+
+        <!--modal-->
+        <div id="calendar_Modal" class="modal" >
+            <div class="modal-content">
+                <span class="close" onclick="calendar_Modal_Close()">&times;</span>
+                <div style="font-family: KyoboHand; font-size: 30px; padding-left: 5%;">
+                    <h3 id="modal_Date" style="padding-left: 25%; margin-top: 15px;">날짜</h3>
+                    <h3 id="modal_Event" style="font-weight: bold; color: red;">행사</h3>
+
+                    <table border="0" id="GRADE_EVENT_CALENDAR">
+                        <tr>
+                            <td align="right">1학년</td>
+                            <td><img id="modal_ONE_GRADE" src="check_OFF.png" ></td>
+                        </tr>
+                        <tr>
+                            <td align="right">2학년</td>
+                            <td><img id="modal_TWO_GRADE" src="check_OFF.png" ></td>
+                        </tr>
+                        <tr>
+                            <td align="right">3학년</td>
+                            <td><img id="modal_THREE_GRADE" src="check_OFF.png" ></td>
+                        </tr>
+                    </table>
+<!--                    <p style="line-height: 70%;">-->
+<!--                        <a style="float: left">1학년 </a><img id="modal_ONE_GRADE" src="check_Box.png" width="15px" style="display: block; margin-left: 35px;" ><br>-->
+<!--                        <a style="float: left">2학년 </a><img id="modal_TWO_GRADE" src="check_Box.png" width="15px" style="display: none; margin-left: 35px;" ><br>-->
+<!--                        <a style="float: left">3학년 </a><img id="modal_THREE_GRADE" src="check_Box.png" width="15px" style="display: none; margin-left: 35px;" ><br>-->
+<!--                    </p>-->
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>

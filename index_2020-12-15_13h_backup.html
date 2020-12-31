@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="kr">
+    <meta charset="utf-8">
+    <title>sasd</title>
+    <script src="jquery.js" ></script>
+
+    <script>
+
+        //var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800344&AA_FROM_YMD=20191226&AA_TO_YMD=20191227";
+        var date = 201912;
+        var c_year = 2019;
+        var c_month = 12;
+        var c_date = 26;
+        var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800344&AA_YMD="+date;
+        var i;
+        var len;
+        var str = "";
+        var doc_write=``;
+        var date_String;
+        let h_date = new Date();
+
+        c_year = h_date.getFullYear();
+        c_month = h_date.getMonth() + 1;
+        c_date = h_date.getDate();
+
+        function print_Date(date) {
+            var print_Date = "";
+            print_Date = String(date[0]) + String(date[1]) + String(date[2]) + String(date[3]) + "년 " + String(date[4]) + String(date[5]) + "월 " + String(date[6]) + String(date[7]) + "일";
+            return print_Date;
+        }
+
+        function prev_Btn() {
+            if(c_month == 1) {
+                c_month = 12;
+                c_year--;
+            } else {
+                c_month--;
+            }
+            load();
+        }
+        function next_Btn() {
+            if(c_month == 12) {
+                c_month = 1;
+                c_year++;
+            } else {
+                c_month++;
+            }
+            load();
+        }
+        function error(data) {
+            var err_msg;
+            if(data.RESULT.CODE == "INFO-200")
+                err_msg = "해당하는 데이터가 없습니다.\n일정은 올해 일정과 전년도의 일정만 공개됩니다.";
+            doc_write = "";
+            //doc_write += `<h2 style="color:RED">오류가 발생했습니다. 오류 코드와 오류메세지와 함께 개발자에게 문의하시길 바랍니다.</h2><h4>새로고침하면 날짜가 초기화됩니다.</h4>`;
+            //doc_write += `<h5 style="font-size: 20px; color:salmon"><br><br>ERROR_CODE : ${data.RESULT.CODE}<br>ERROR_MESSAGE : ${data.RESULT.MESSAGE}</h5>`;
+            /* document.open();
+            document.write(doc_write);
+            document.close(); */
+            c_year = h_date.getFullYear();
+            c_month = h_date.getMonth() + 1;
+            // 임의대로 날짜 지정
+            /*c_year = 2020;
+            c_month = 3;*/
+            // 나중에 현재 날짜에 맞게 처리
+            alert(err_msg);
+            load();
+        }
+
+        function today_EVENT(data) {
+             var today_Year = h_date.getFullYear();
+             var today_Month = h_date.getMonth() + 1;
+             var today_Date = h_date.getDate();
+             var today = "";
+             var event_Name = "";
+             var cnt = 0;
+             var len = data.SchoolSchedule[0].head[0].list_total_count;
+
+             if(today_Month < 10)
+                 today_Month = "0" + today_Month;
+             if(today_Date < 10)
+                 today_Day = "0" + today_Date;
+            today = String(today_Year) + String(today_Month) + String(today_Date);
+
+            for(i=0;i<len;i++) {
+                if(data.SchoolSchedule[1].row[i].AA_YMD == today) {
+                    console.log("TODAY : ?  " + today);
+                    event_Name = data.SchoolSchedule[1].row[i].EVENT_NM;
+                    cnt = 1;
+                }
+            }
+            if(cnt == 0 || event_Name == "토요휴업일")
+                event_Name = "일정 없음";
+            doc_write += `<h1 style="color: salmon">오늘 일정 : ` + event_Name + "(" + print_Date(today)+")"+`</h1><br>`;
+            document.getElementById("toDay_Event").innerText = `오늘 일정 : ` + event_Name + `(${print_Date(today)})`;
+        }
+        function next_EVENT() {
+            var check_Year = c_year;
+            var check_Month = c_month;
+            var check_Date = c_date;
+            var link_Today = "";
+            var check_Today = "";
+            var toDay = "20201213";
+            var print_Next_Date="";
+
+            if(check_Month < 10)
+                link_Today = String(check_Year) + "0" + String(check_Month);
+            else
+                link_Today = String(check_Year) + String(check_Month);
+            console.log(link_Today);
+            var n_link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800344&AA_YMD="+link_Today;
+            $.getJSON(n_link,
+                function(data) {
+                    if(!data.SchoolSchedule)
+                        console.log("안됨");
+
+                    var len = data.SchoolSchedule[0].head[0].list_total_count;
+
+                    for(var i=0;i<len;i++) {
+                        var toDay_Date = (toDay[6] + toDay[7]);
+                        toDay_Date *= 1;
+                        var checkDay_Date = (data.SchoolSchedule[1].row[i].AA_YMD[6] + data.SchoolSchedule[1].row[i].AA_YMD[7]);
+                        checkDay_Date *= 1;
+
+                        if(toDay_Date < checkDay_Date && data.SchoolSchedule[1].row[i].EVENT_NM != "토요휴업일") {
+                            console.log(data.SchoolSchedule[1].row[i].AA_YMD +" "+data.SchoolSchedule[1].row[i].EVENT_NM);
+                            //print_Next_Date = data.SchoolSchedule[1].row[i].AA_YMD[0] + data.SchoolSchedule[1].row[i].AA_YMD[1] + data.SchoolSchedule[1].row[i].AA_YMD[2] + data.SchoolSchedule[1].row[i].AA_YMD[3] +"년 " + data.SchoolSchedule[1].row[i].AA_YMD[4] + data.SchoolSchedule[1].row[i].AA_YMD[5]+"월 " + data.SchoolSchedule[1].row[i].AA_YMD[6] + data.SchoolSchedule[1].row[i].AA_YMD[7]+"일";
+                            //print_Next_Date = print_Date(String(data.SchoolSchedule[1].row[i].AA_YMD));
+                            doc_write += `<h1 style="color: salmon">다음 일정 : ` + data.SchoolSchedule[1].row[i].EVENT_NM + "("+ print_Date(data.SchoolSchedule[1].row[i].AA_YMD) +")"+`</h1><br>`;
+                            document.getElementById("next_Event").innerText = `다음 일정 : ${data.SchoolSchedule[1].row[i].EVENT_NM}(${print_Date(data.SchoolSchedule[1].row[i].AA_YMD)})`;
+                            //document.getElementById("next_Event").innerHTML = `<h3 style="color: red">다음 일정 : ` + data.SchoolSchedule[1].row[i].EVENT_NM + "("+ print_Date(data.SchoolSchedule[1].row[i].AA_YMD) +")"+`</h3><br>`;
+                            i = 9999;
+                        }
+                    }
+                })
+                .fail(function (xhr, status, errorThrown) {
+                    console.log("[Error] " + xhr + " " + status + " " + errorThrown);
+                });
+        }
+
+        function load() {
+            if(c_month < 10)
+                date = String(c_year) + "0" + String(c_month);
+            else
+                date = String(c_year) + String(c_month);
+
+            console.log(date);
+            link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800344&AA_YMD="+date;
+
+            doc_write = "";
+            $.getJSON(link,
+                function(data) {
+                    if(!data.SchoolSchedule)
+                        error(data);
+                    else {
+                        today_EVENT(data);
+                        next_EVENT();
+                    }
+
+
+                    len = data.SchoolSchedule[0].head[0].list_total_count;
+
+                    doc_write += `<button onclick="prev_Btn()">이전</button>`+"\n";
+                    doc_write += `<button onclick="next_Btn()">다음</button>` + "\n";
+
+                    console.log(doc_write);
+
+                    doc_write += `<table border="1"> <th>일정</th><th>행사</th>`;
+                    //document.open();
+
+                    //document.write("<button>이전</button>");
+                    //document.write("<button>다음</button>");
+                    doc_write = `<th>일정</th><th>행사</th>`; // 테스트용 doc_write;
+                    for(i=0;i<len;i++) {
+                        if(data.SchoolSchedule[1].row[i].EVENT_NM != "") {  // 토요휴업일
+                            //date_String = data.SchoolSchedule[1].row[i].AA_YMD[0] + data.SchoolSchedule[1].row[i].AA_YMD[1] + data.SchoolSchedule[1].row[i].AA_YMD[2] + data.SchoolSchedule[1].row[i].AA_YMD[3] +"년 " + data.SchoolSchedule[1].row[i].AA_YMD[4] + data.SchoolSchedule[1].row[i].AA_YMD[5]+"월 " + data.SchoolSchedule[1].row[i].AA_YMD[6] + data.SchoolSchedule[1].row[i].AA_YMD[7]+"일";
+                            date_String = print_Date(data.SchoolSchedule[1].row[i].AA_YMD);
+
+                            doc_write += `<tr>`;
+                            doc_write += `<td>${date_String}</td><td>${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
+                            //doc_write += `<td>${data.SchoolSchedule[1].row[i].AA_YMD}</td><td>${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
+                            doc_write += `</tr>`;
+
+                            //doc_write += (`<h4>일정 : ${data.SchoolSchedule[1].row[i].AA_YMD}<br>일정 이름 : ${data.SchoolSchedule[1].row[i].EVENT_NM}<br></h4>`);
+                            //document.write(`<h4>일정 : ${data.SchoolSchedule[1].row[i].AA_YMD}<br>일정 이름 : ${data.SchoolSchedule[1].row[i].EVENT_NM}</h4>`);
+                            //str = str + "일정 : " + data.SchoolSchedule[1].row[i].AA_YMD +"\n일정 이름 : " + data.SchoolSchedule[1].row[i].EVENT_NM + " \n";
+                            //console.log("일정 : " + data.SchoolSchedule[1].row[i].AA_YMD + "\n일정 이름 : " + data.SchoolSchedule[1].row[i].EVENT_NM);
+                        }
+                    }
+                    document.getElementById("calendar_Table").innerHTML = doc_write;
+                    //document.write(doc_write);
+
+
+                    //document.close();
+
+
+                })
+            .fail(function (xhr, status, errorThrown) {
+                console.log("[Error] " + xhr + " " + status + " " + errorThrown);
+            });
+        }
+        load();
+    </script>
+
+    <body>
+        <h1 id="toDay_Event" style="color:salmon">오늘 일정 : </h1>
+        <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>
+        <h4>테스트으ㅡ으으으ㅡ으</h4>
+        <button onclick="prev_Btn()">이전</button>
+        <button onclick="next_Btn()">다음</button>
+        <table border="1" id="calendar_Table">
+
+        </table>
+
+    </body>
+
+</html>
