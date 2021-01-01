@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="kr">
     <meta charset="utf-8">
-    <title>양구여고</title>
-    <link href="calendar_icon.png" rel="shortcut icon" type="image/x-icon">
+    <title>sasd</title>
+    <link href="calendar_icon.png" rel="shortcut icon" type="image/x-icon" >
     <script src="jquery.js" ></script>
     <style>
         @font-face {
@@ -68,16 +68,29 @@
             padding-left: 5px;
             padding-bottom: 7px;
         }
+        .calendar_Caption {
+            text-align: right;
+            caption-side: top;
+            font-family: KyoboHand;
+            font-size: 90%;
+            letter-spacing: 1px;
+            color: darkgray;
+
+        }
     </style>
 
     <script>
+
+        var ATPT_OFCDC_SC_CODE = "K10"; // 교육청 코드  "K10": 강원도교육청
+        var SD_SCHUL_CODE = "7800169"; // 학교 코드  "7800344": 양구고 / "7800169": 양구여고
+
 
         //var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800344&AA_FROM_YMD=20191226&AA_TO_YMD=20191227";
         var date = 201912;
         var c_year = 2019;
         var c_month = 12;
         var c_date = 26;
-        var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_YMD="+date;
+        var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE="+ATPT_OFCDC_SC_CODE+"&SD_SCHUL_CODE="+SD_SCHUL_CODE+"&AA_YMD="+date;
         var i;
         var len;
         var str = "";
@@ -102,7 +115,7 @@
             var plus_date = String(a.id).split("/")[0];
             var w = 0;
 
-            var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_YMD="+plus_date;
+            var link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE="+ATPT_OFCDC_SC_CODE+"&SD_SCHUL_CODE="+SD_SCHUL_CODE+"&AA_YMD="+plus_date;
             console.log("LINK : " + link);
             $.getJSON(link,
                 function(data) {
@@ -139,6 +152,23 @@
                     document.getElementById("calendar_Modal").style.display = "block";
                 });
         }
+        function dev_Modal(v) {
+            console.log("DEV MODAL : " + v);
+            document.getElementById("dev_st_Modal").style.display = "block";
+            if(v == "DEV") {
+                document.getElementById("dev").style.display = "block";
+                document.getElementById("st").style.display = "none";
+            }
+            else if(v == "ST") {
+                document.getElementById("dev").style.display = "none";
+                document.getElementById("st").style.display = "block";
+            }
+        }
+        function modal_Close() {
+            document.getElementById("dev_st_Modal").style.display = "none";
+            document.getElementById("dev").style.display = "none";
+            document.getElementById("st").style.display = "none";
+        }
         function calendar_Modal_Close() {
             document.getElementById("calendar_Modal").style.display = "none";
             document.getElementById("modal_ONE_GRADE").style.display = "none";
@@ -149,6 +179,8 @@
             if(event.keyCode == 27 || event.which == 27) {
                 if(document.getElementById("calendar_Modal").style.display == "block")
                     calendar_Modal_Close();
+                else if(document.getElementById("dev_st_Modal").style.display == "block")
+                    modal_Close();
             }
         });
 
@@ -213,23 +245,34 @@
              var cnt = 0;
              var len = data.SchoolSchedule[0].head[0].list_total_count;
 
-             if(today_Month < 10)
-                 today_Month = "0" + today_Month;
-             if(today_Date < 10)
-                 today_Day = "0" + today_Date;
+            if(today_Month < 10)
+                today_Month = "0" + today_Month;
+            if(today_Date < 10)
+                today_Date = "0" + today_Date;
             today = String(today_Year) + String(today_Month) + String(today_Date);
 
-            for(i=0;i<len;i++) {
-                if(data.SchoolSchedule[1].row[i].AA_YMD == today) {
-                    console.log("TODAY : ?  " + today);
-                    event_Name = data.SchoolSchedule[1].row[i].EVENT_NM;
-                    cnt = 1;
+            calendar_Load(today, today, function(data) {
+                if(!data.SchoolSchedule)
+                    event_Name = "일정 없음";
+                else {
+                    event_Name = data.SchoolSchedule[1].row[0].EVENT_NM;
+                    document.getElementById("toDay_Event").innerText = `오늘 일정 : ` + event_Name + `(${print_Date(today)})`;
                 }
-            }
-            if(cnt == 0 || event_Name == "토요휴업일")
-                event_Name = "일정 없음";
-            doc_write += `<h1 style="color: salmon">오늘 일정 : ` + event_Name + "(" + print_Date(today)+")"+`</h1><br>`;
-            document.getElementById("toDay_Event").innerText = `오늘 일정 : ` + event_Name + `(${print_Date(today)})`;
+
+            });
+
+
+            // for(i=0;i<len;i++) {
+            //     if(data.SchoolSchedule[1].row[i].AA_YMD == today) {
+            //         console.log("TODAY : ?  " + today);
+            //         event_Name = data.SchoolSchedule[1].row[i].EVENT_NM;
+            //         cnt = 1;
+            //     }
+            // }
+            // if(cnt == 0 || event_Name == "토요휴업일")
+            //     event_Name = "일정 없음";
+            // doc_write += `<h1 style="color: salmon">오늘 일정 : ` + event_Name + "(" + print_Date(today)+")"+`</h1><br>`;
+            // document.getElementById("toDay_Event").innerText = `오늘 일정 : ` + event_Name + `(${print_Date(today)})`;
         }
         function date_Format(year, month, date) {
             var r_Date="";
@@ -249,7 +292,7 @@
             return r_Date;
         }
         function calendar_Load(toDay, checkDay, callback) {
-            var n_link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_FROM_YMD="+toDay+"&AA_TO_YMD="+checkDay;
+            var n_link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE="+ATPT_OFCDC_SC_CODE+"&SD_SCHUL_CODE="+SD_SCHUL_CODE+"&AA_FROM_YMD="+toDay+"&AA_TO_YMD="+checkDay;
             $.getJSON(n_link,
                 function(data) {
                     callback(data);
@@ -305,6 +348,12 @@
 
             });
         }
+        function target_School() {
+            if(ATPT_OFCDC_SC_CODE == "K10" &&SD_SCHUL_CODE == "7800344") // 양구고
+                document.getElementById("target_School").innerText = "양구고등학교";
+            else if(ATPT_OFCDC_SC_CODE == "K10" && SD_SCHUL_CODE == "7800169") // 양구여고
+                document.getElementById("target_School").innerText = "양구여자고등학교";
+        }
 
         function load() {
             if(c_month < 10)
@@ -313,7 +362,7 @@
                 date = String(c_year) + String(c_month);
 
             console.log(date);
-            link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=K10&SD_SCHUL_CODE=7800169&AA_YMD="+date;
+            link = "https://open.neis.go.kr/hub/SchoolSchedule?KEY=8adfef1da92d43a88dfb4ce945756085&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE="+ATPT_OFCDC_SC_CODE+"&SD_SCHUL_CODE="+SD_SCHUL_CODE+"&AA_YMD="+date;
 
             doc_write = "";
             $.getJSON(link,
@@ -324,6 +373,7 @@
                     else {
                         today_EVENT(data);
                         next_EVENT();
+                        target_School();
                     }
 
 
@@ -340,7 +390,8 @@
                     //document.write("<button>이전</button>");
                     //document.write("<button>다음</button>");
 
-                    doc_write = `<th>일정</th><th>행사</th>`; // 테스트용 doc_write;
+                    doc_write = `<caption class="calendar_Caption">${h_date.toLocaleString()} 기준</caption>`;
+                    doc_write += `<th>일정</th><th>행사</th>`; // 테스트용 doc_write;
                     document.getElementById("text_Year").innerText = `${c_year}년`;
                     document.getElementById("text_Month").innerText = `${(c_month)*1}월`
                     for(i=0;i<len;i++) {
@@ -376,45 +427,60 @@
     </script>
 
     <body>
+        <a id="target_School" style="font-family: KyoboHand; color: plum; font-size: 25px;">고등학교</a>
         <h1 id="toDay_Event" style="color:salmon">오늘 일정 : </h1>
         <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>
         <h4>테스트으ㅡ으으으ㅡ으</h4>
-        <div style="width: 500px; height: 100px">
-            <button onclick="prev_Btn()" style="float: left;">이전</button>
-            <h3 style="float: left; font-family: BMEULJIRO; font-size: 100%;">
-                <a id="text_Year">년</a>
-                <br>
-                <a id="text_Month">월</a>
-            </h3>
-            <button onclick="next_Btn()" style="float: left;">다음</button>
+
+<!--        날짜 변경 버튼-->
+        <div>
+            <div style="width: 500px; height: 100px;">
+                <table border="0" style="float: left; font-family: BMEULJIRO; font-size: 100%; margin: auto;">
+                    <tr>
+                        <td rowspan="2"><button onclick="prev_Btn()" style="float: left;">이전</button></td>
+                        <td id="text_Year">년</td>
+                        <td rowspan="2"><button onclick="next_Btn()" style="float: left;">다음</button></td>
+                    </tr>
+                    <tr>
+                        <td id="text_Month" style="text-align: center;">월</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!--일정표-->
+            <div style="clear: both" >
+                <table border="1" id="calendar_Table">
+                </table>
+            </div>
         </div>
 
-        <div style="clear: both" >
-            <table border="1" id="calendar_Table">
-            </table>
-        </div>
-
-        <h5 style="font-family: KyoboHand; margin-top: 95px; color: darkgray">
+        <div style="font-family: KyoboHand; margin-top: 95px; color: darkgray; float: left">
             Made by Team
             <a style="font-size: 100px; color: skyblue;">OUR:M</a><br>
 <!--            Made by Team-->
 <!--            <a style="font-size: 100px; color: lightskyblue;">OUR:M</a><br>-->
-            [Developer]<br>
-            강동준<br>
-            doteka@gwnu.ac.kr
-        </h5>
+        </div>
+        <div style="clear: both; margin-top: 95px; margin-bottom: 200px;">
+            <div onclick="dev_Modal('DEV')" style="font-family: KyoboHand; color: darkgray; float: left">
+                [Developer]<br>
+                강동준<br>
+                doteka@gwnu.ac.kr
+            </div>
 
-        <h5 style="font-family: Cafe24Shiningstar; color: salmon; font-size: 130%" >
-            [Special Thanks]<br>
-            <a style="color: mediumvioletred">Park H J</a>
-            <br>
-            <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
-            <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
-            <a style="color: deepskyblue">아우름</a>
-            <br>
-            <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
-            <a style="color: darkgray;">2020 2학기 기말고사</a>
-        </h5>
+            <div onclick="dev_Modal('ST')" style="font-family: KyoboHand; margin-left: 20px; color: salmon; float: left" >
+                <a>[Special Thanks]</a><br>
+                <a style="color: mediumvioletred">Park H J</a>
+                <br>
+                <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
+                <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
+                <a style="color: deepskyblue">아우름</a>
+                <br>
+                <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
+                <a style="color: darkgray;">2020 2학기 기말고사</a>
+            </div>
+
+        </div>
+
 
         <!--modal-->
         <div id="calendar_Modal" class="modal" >
@@ -446,6 +512,46 @@
                 </div>
             </div>
         </div>
-    </body>
+        <div id="dev_st_Modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="modal_Close()">&times;</span>
+                <div id="st" style="font-family: KyoboHand; font-size: 150%; display: none;">
+                    <h1 style="padding-left: 20%; margin-top: 15px; color: salmon">Special Thanks</h1>
 
+                    <div style="padding-left: 5%">
+                        <a style="color: mediumvioletred">Park H J</a>
+                        <br>
+                        <br>
+                        <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
+                        <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
+                        <a style="color: deepskyblue">아우름</a>
+                        <br>
+                        <br>
+                        <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
+                        <a style="color: darkgray;">2020 2학기 기말고사</a>
+                        <br>
+                        <br>
+                        <a>도움 주신 모든 분들 정말 감사합니다</a>
+                        <br>
+                        <a>덕분에 본 프로그램이 탄생할 수 있었습니다</a>
+                    </div>
+                </div>
+                <div id="dev" style="font-family: KyoboHand; font-size: 150%; display: none;">
+                    <h1 style="padding-left: 30%; margin-top: 10px; color: salmon">Developer</h1>
+
+                    <div style="padding-left: 5%">
+                        <a style="color: mediumvioletred">강동준</a><br>
+                        <a style="color: darkgray">doteka@gwnu.ac.kr</a><br><br>
+                        <a>오류 신고 혹은 요청하고 싶으신 것이 있으면</a><br>
+                        <a>이메일로 연락 주시면 확인하는 대로 답장 드리겠습니다</a>
+                        <div style="margin-top: 10%;font-size: 90%; float: right; margin-right: 5%">
+                            <a style="color: darkgray">Made by Team</a>
+                            <a style="color: skyblue; font-size: 200%">OUR:M</a><br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </body>
 </html>
