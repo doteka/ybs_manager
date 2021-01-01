@@ -4,6 +4,8 @@
     <title>sasd</title>
     <link href="calendar_icon.png" rel="shortcut icon" type="image/x-icon" >
     <script src="jquery.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+
     <style>
         @font-face {
             font-family: 'KyoboHand';
@@ -79,7 +81,7 @@
         }
     </style>
 
-    <script>
+    <script type="text/babel">
 
         var ATPT_OFCDC_SC_CODE = "K10"; // 교육청 코드  "K10": 강원도교육청
         var SD_SCHUL_CODE = "7800169"; // 학교 코드  "7800344": 양구고 / "7800169": 양구여고
@@ -427,7 +429,7 @@
     </script>
 
     <body>
-        <a id="target_School" style="font-family: KyoboHand; color: plum; font-size: 25px;">고등학교</a>
+        <a id="target_School" style="font-family: KyoboHand; color: plum; font-size: 27px;">고등학교</a>
         <h1 id="toDay_Event" style="color:salmon">오늘 일정 : </h1>
         <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>
         <h4>테스트으ㅡ으으으ㅡ으</h4>
@@ -435,7 +437,7 @@
 <!--        날짜 변경 버튼-->
         <div>
             <div style="width: 500px; height: 100px;">
-                <table border="0" style="float: left; font-family: BMEULJIRO; font-size: 100%; margin: auto;">
+                <table border="1" style="float: left; font-family: BMEULJIRO; font-size: 100%; margin: auto;">
                     <tr>
                         <td rowspan="2"><button onclick="prev_Btn()" style="float: left;">이전</button></td>
                         <td id="text_Year">년</td>
@@ -515,17 +517,17 @@
         <div id="dev_st_Modal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="modal_Close()">&times;</span>
+
+                <!--special Thanks-->
                 <div id="st" style="font-family: KyoboHand; font-size: 150%; display: none;">
                     <h1 style="padding-left: 20%; margin-top: 15px; color: salmon">Special Thanks</h1>
 
                     <div style="padding-left: 5%">
                         <a style="color: mediumvioletred">Park H J</a>
                         <br>
-                        <br>
                         <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
                         <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
                         <a style="color: deepskyblue">아우름</a>
-                        <br>
                         <br>
                         <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
                         <a style="color: darkgray;">2020 2학기 기말고사</a>
@@ -536,15 +538,17 @@
                         <a>덕분에 본 프로그램이 탄생할 수 있었습니다</a>
                     </div>
                 </div>
+
+                <!--개발자 소개-->
                 <div id="dev" style="font-family: KyoboHand; font-size: 150%; display: none;">
                     <h1 style="padding-left: 30%; margin-top: 10px; color: salmon">Developer</h1>
 
                     <div style="padding-left: 5%">
                         <a style="color: mediumvioletred">강동준</a><br>
                         <a style="color: darkgray">doteka@gwnu.ac.kr</a><br><br>
-                        <a>오류 신고 혹은 요청하고 싶으신 것이 있으면</a><br>
+                        <a>오류 신고 혹은 요청하고 싶으신 것이 있으시면</a><br>
                         <a>이메일로 연락 주시면 확인하는 대로 답장 드리겠습니다</a>
-                        <div style="margin-top: 10%;font-size: 90%; float: right; margin-right: 5%">
+                        <div style="margin-top: 12%;font-size: 90%; float: right; margin-right: 5%">
                             <a style="color: darkgray">Made by Team</a>
                             <a style="color: skyblue; font-size: 200%">OUR:M</a><br>
                         </div>
