@@ -154,21 +154,21 @@
                 });
         }
         function dev_Modal(v) {
-            console.log("DEV MODAL : " + v);
+            modal_Close();
+
             document.getElementById("dev_st_Modal").style.display = "block";
-            if(v == "DEV") {
+            if(v == "DEV")
                 document.getElementById("dev").style.display = "block";
-                document.getElementById("st").style.display = "none";
-            }
-            else if(v == "ST") {
-                document.getElementById("dev").style.display = "none";
+            else if(v == "ST")
                 document.getElementById("st").style.display = "block";
-            }
+            else if(v == "SRC")
+                document.getElementById("source").style.display = "block";
         }
         function modal_Close() {
             document.getElementById("dev_st_Modal").style.display = "none";
             document.getElementById("dev").style.display = "none";
             document.getElementById("st").style.display = "none";
+            document.getElementById("source").style.display = "none";
         }
         function calendar_Modal_Close() {
             document.getElementById("calendar_Modal").style.display = "none";
@@ -413,7 +413,21 @@
                             //console.log("일정 : " + data.SchoolSchedule[1].row[i].AA_YMD + "\n일정 이름 : " + data.SchoolSchedule[1].row[i].EVENT_NM);
                         }
                     }
+
                     document.getElementById("calendar_Table").innerHTML = doc_write;
+                    document.getElementById("date_Move").style.width = document.getElementById("calendar_Table").offsetWidth + 'px';
+                    document.getElementById("text_Year").style.width = (document.getElementById("calendar_Table").offsetWidth / 2) + 'px';
+                    document.getElementById("prev_Button").style.height = (document.getElementById("text_Year").offsetHeight * 2) + 'px';
+                    document.getElementById("prev_Button").style.width = "auto";
+                    document.getElementById("next_Button").style.height = (document.getElementById("text_Year").offsetHeight * 2) + 'px';
+                    document.getElementById("next_Button").style.width = "auto";
+
+
+                    // document.getElementById("prev_Button").style.width = document.getElementById("prev_Table").offsetWidth + 'px';
+                    // document.getElementById("prev_Button").style.height = document.getElementById("prev_Table").offsetHeight + 'px';
+                    // document.getElementById("next_Button").style.width = document.getElementById("next_Table").offsetWidth + 'px';
+                    // document.getElementById("next_Button").style.height = document.getElementById("next_Table").offsetHeight + 'px';
+
 
                     //document.write(doc_write);
                     //document.close();
@@ -433,23 +447,24 @@
         <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>
         <h4>테스트으ㅡ으으으ㅡ으</h4>
 
-<!--        날짜 변경 버튼-->
+        <!--날짜 변경 버튼-->
         <div>
             <div style="width: 500px; height: 100px;">
-                <table border="1" style="float: left; font-family: BMEULJIRO; font-size: 100%; margin: auto;">
+                <table id="date_Move" border="0" style="float: left; font-family: BMEULJIRO; font-size: 100%; margin: auto; text-align: center;">
                     <tr>
-                        <td rowspan="2"><button onclick="prev_Btn()" style="float: left;">이전</button></td>
+                        <td rowspan="2" id="prev_Table" style="cursor: pointer"><img src="date_Move_Arrow_Left.png" id="prev_Button" onClick="prev_Btn()" style="width: 25%; height: auto;"></td>
                         <td id="text_Year">년</td>
-                        <td rowspan="2"><button onclick="next_Btn()" style="float: left;">다음</button></td>
+                        <td rowspan="2" id="next_Table" style="cursor: pointer"><img src="date_Move_Arrow_Right.png" id="next_Button" onClick="next_Btn()" style="width: 25%; height: auto;"></td>
+<!--                        <td rowspan="2" id="next_Table"><button id="next_BUtton" onclick="next_Btn()" style="float: left; width: 100%; height: auto;">다음</button></td>-->
                     </tr>
                     <tr>
-                        <td id="text_Month" style="text-align: center;">월</td>
+                        <td id="text_Month">월</td>
                     </tr>
                 </table>
             </div>
 
             <!--일정표-->
-            <div style="clear: both" >
+            <div style="clear: both; margin-top: -2%;" >
                 <table border="1" id="calendar_Table">
                 </table>
             </div>
@@ -480,6 +495,17 @@
                 <a style="color: darkgray;">2020 2학기 기말고사</a>
             </div>
 
+            <div onClick="dev_Modal('SRC')" style="font-family: KyoboHand; margin-left: 20px; float: left; color: darkgray" >
+                <a>[자료 제공]</a>
+                <br>
+                <a>Neis</a>
+                <br>
+                <a>눈누</a>
+                <br>
+                <a>ICOOON MONO</a>
+                <br>
+                <a>김종헌님</a>
+            </div>
         </div>
 
 
@@ -544,7 +570,7 @@
 
                     <div style="padding-left: 5%">
                         <a style="color: mediumvioletred">강동준</a><br>
-                        <a style="color: darkgray">doteka@gwnu.ac.kr</a><br><br>
+                        <a style="color: black">doteka@gwnu.ac.kr</a><br><br>
                         <a>오류 신고 혹은 요청하고 싶으신 것이 있으시면</a><br>
                         <a>이메일로 연락 주시면 확인하는 대로 답장 드리겠습니다</a>
                         <div style="margin-top: 12%;font-size: 90%; float: right; margin-right: 5%">
@@ -554,6 +580,24 @@
                     </div>
                 </div>
 
+                <!--자료 제공-->
+                <div id="source" style="font-family: KyoboHand; font-size: 150%; display: none; line-height: 35px">
+                    <h1 style="padding-left: 35%; margin-top: 20px; color: salmon">자료 제공</h1>
+                    <div style="padding-left: 5%">
+                        <a>Neis API 학사일정 제공</a>
+                        <br>
+                        <a>눈누를 통한 폰트 제공</a>
+                        <br>
+                        <a style="margin-left: 5%"> - 교보문고, 카페24, 우아한형제들</a>
+                        <br>
+                        <a>ICOOON MONO 아이콘 제공</a>
+                        <br>
+                        <a>김종헌님 아이콘 제공</a>
+                        <br>
+                        <br>
+                        <a>모두 감사합니다</a>
+                    </div>
+                </div>
             </div>
         </div>
     </body>
