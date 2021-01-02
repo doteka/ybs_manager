@@ -26,6 +26,10 @@
         }
     </style>
     <style>
+        body {
+            background-image: url("background_ver2.jpg");
+            background-size: 200%;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -76,7 +80,40 @@
             font-size: 90%;
             letter-spacing: 1px;
             color: darkgray;
-
+        }
+        .footer,
+        .date_Calendar,
+        .move_Btn,
+        .Notifi,
+        #target_School {
+            display: flex;
+            justify-content: center;
+            /*align-items: center;*/
+            box-sizing: border-box;
+            margin: 0px;
+        }
+        .event_Notifi {
+            font-family: KyoboHand;
+            font-size: 70px;
+            padding-left: 30px;
+            text-align: right;
+        }
+        .event_Notifi_Caption {
+            font-family: KyoboHand;
+            font-size: 25px;
+            text-align: right;
+        }
+        .calendar_Date,
+        .calendar_Event {
+            padding-top: 2px;
+            padding-bottom: 2px;
+            padding-right: 10px;
+            padding-left: 10px;
+            text-align: center;
+        }
+        .date_Calendar {
+            font-family: KyoboHand;
+            font-size: 120%;
         }
     </style>
 
@@ -253,13 +290,18 @@
             today = String(today_Year) + String(today_Month) + String(today_Date);
 
             calendar_Load(today, today, function(data) {
+                console.log("ASDASDSD");
+                console.log(data);
                 if(!data.SchoolSchedule)
                     event_Name = "일정 없음";
                 else {
                     event_Name = data.SchoolSchedule[1].row[0].EVENT_NM;
-                    document.getElementById("toDay_Event").innerText = `오늘 일정 : ` + event_Name + `(${print_Date(today)})`;
-                }
+                    if(event_Name == "토요휴업일")
+                        event_Name = "일정 없음";
 
+                }
+                document.getElementById("toDay_Date").innerText = print_Date(today);
+                document.getElementById("toDay_Event").innerText = event_Name;
             });
 
 
@@ -342,11 +384,14 @@
                         }
                     }
                 }
-                if(eventDATE != " ")
-                    document.getElementById("next_Event").innerText = `다음 일정 : ` + eventNM + `(${print_Date(eventDATE)})`;
-                else
-                    document.getElementById("next_Event").innerText = `다음 일정 : ` + eventNM;
-
+                if(eventDATE != " ") {
+                    document.getElementById("next_Date").innerText = print_Date(eventDATE);
+                    document.getElementById("next_Event").innerText = eventNM;
+                }
+                else {
+                    // document.getElementById("next_Date").innerText = print_Date(eventDATE);
+                    document.getElementById("next_Event").innerText = eventNM;
+                }
             });
         }
         function target_School() {
@@ -403,7 +448,7 @@
 
 
                             doc_write += `<tr id="${data.SchoolSchedule[1].row[i].AA_YMD+"/"+data.SchoolSchedule[1].row[i].EVENT_NM}" onClick="information_Window(this)" >`;
-                            doc_write += `<td>${date_String}</td><td>${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
+                            doc_write += `<td  class="calendar_Date" >${date_String}</td><td class="calendar_Event" >${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
                             //doc_write += `<td>${data.SchoolSchedule[1].row[i].AA_YMD}</td><td>${data.SchoolSchedule[1].row[i].EVENT_NM}</td>`;
                             doc_write += `</tr>`;
 
@@ -442,50 +487,71 @@
     </script>
 
     <body>
-        <a id="target_School" style="font-family: KyoboHand; color: plum; font-size: 27px;">고등학교</a>
-        <h1 id="toDay_Event" style="color:salmon">오늘 일정 : </h1>
-        <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>
-        <h4>테스트으ㅡ으으으ㅡ으</h4>
+        <a id="target_School" style="font-family: KyoboHand; color: plum; font-size: 35px;">고등학교</a>
+        <div class="Notifi" style="margin-top: 20px;">
+            <!--오늘 일정-->
+            <div style="float: left; margin-right: 150px;">
+                <table border="0" style="color: salmon;">
 
-        <!--날짜 변경 버튼-->
-        <div>
-            <div style="width: 500px; height: 100px;">
-                <table id="date_Move" border="0" style="float: left; font-family: BMEULJIRO; font-size: 100%; margin: auto; text-align: center;">
-                    <tr>
-                        <td rowspan="2" id="prev_Table" style="cursor: pointer"><img src="date_Move_Arrow_Left.png" id="prev_Button" onClick="prev_Btn()" style="width: 25%; height: auto;"></td>
-                        <td id="text_Year">년</td>
-                        <td rowspan="2" id="next_Table" style="cursor: pointer"><img src="date_Move_Arrow_Right.png" id="next_Button" onClick="next_Btn()" style="width: 25%; height: auto;"></td>
-<!--                        <td rowspan="2" id="next_Table"><button id="next_BUtton" onclick="next_Btn()" style="float: left; width: 100%; height: auto;">다음</button></td>-->
-                    </tr>
-                    <tr>
-                        <td id="text_Month">월</td>
-                    </tr>
+                    <caption class="event_Notifi_Caption" id="toDay_Date">toDay_Date</caption>
+                    <td class="event_Notifi" id="toDay_Event">toDay_EVENT</td>
                 </table>
             </div>
 
-            <!--일정표-->
-            <div style="clear: both; margin-top: -2%;" >
-                <table border="1" id="calendar_Table">
+            <!--다음 일정-->
+            <div style="float: left; margin-left: 150px;">
+                <table border="0" style="color: darksalmon">
+                    <caption class="event_Notifi_Caption" id="next_Date">next_Date</caption>
+                    <td class="event_Notifi" id="next_Event">next_EVENT</td>
                 </table>
             </div>
         </div>
+        <div style="clear: both;"></div>
 
-        <div style="font-family: KyoboHand; margin-top: 95px; color: darkgray; float: left">
+<!--        <h1 id="toDay_Event" style="color:salmon">오늘 일정 : </h1>-->
+<!--        <h1 id="next_Event" style="color:darksalmon">다음 일정 : </h1>-->
+<!--        <h4>테스트으ㅡ으으으ㅡ으</h4>-->
+
+        <!--날짜 변경 버튼-->
+        <div class="move_Btn">
+            <table id="date_Move" border="0" style="font-family: BMEULJIRO; font-size: 100%; margin: auto; text-align: center;">
+                <tr>
+                    <td rowspan="2" id="prev_Table" style="cursor: pointer"><img src="date_Move_Arrow_Left.png" id="prev_Button" onClick="prev_Btn()" style="width: 25%; height: auto;"></td>
+                    <td id="text_Year">년</td>
+                    <td rowspan="2" id="next_Table" style="cursor: pointer"><img src="date_Move_Arrow_Right.png" id="next_Button" onClick="next_Btn()" style="width: 25%; height: auto;"></td>
+<!--                        <td rowspan="2" id="next_Table"><button id="next_BUtton" onclick="next_Btn()" style="float: left; width: 100%; height: auto;">다음</button></td>-->
+                </tr>
+                <tr>
+                    <td id="text_Month">월</td>
+                </tr>
+
+            </table>
+        </div>
+            <!--일정표-->
+        <div class="date_Calendar"style="clear: both; margin-top: 2%;">
+            <table border="1" id="calendar_Table">
+            </table>
+        </div>
+
+        <div class="made_Team" style="font-family: KyoboHand; margin-top: 50px; margin-right: 30px; color: darkgray; float: right; ">
             Made by Team
             <a style="font-size: 100px; color: skyblue;">OUR:M</a><br>
 <!--            Made by Team-->
 <!--            <a style="font-size: 100px; color: lightskyblue;">OUR:M</a><br>-->
         </div>
-        <div style="clear: both; margin-top: 95px; margin-bottom: 200px;">
+        <div style="clear: both; margin-top: 95px; border-top: 3px solid lightskyblue;"></div>
+        <div class="footer" style="margin-top: 10px; margin-bottom: 20px; text-align: center;">
             <div onclick="dev_Modal('DEV')" style="font-family: KyoboHand; color: darkgray; float: left">
                 [Developer]<br>
                 강동준<br>
                 doteka@gwnu.ac.kr
             </div>
 
-            <div onclick="dev_Modal('ST')" style="font-family: KyoboHand; margin-left: 20px; color: salmon; float: left" >
+            <div onclick="dev_Modal('ST')" style="font-family: KyoboHand; margin-left: 25px; color: salmon; float: left" >
                 <a>[Special Thanks]</a><br>
                 <a style="color: mediumvioletred">Park H J</a>
+                <br>
+                <a style="color: midnightblue">Jeong D Y</a>
                 <br>
                 <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
                 <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
@@ -495,12 +561,14 @@
                 <a style="color: darkgray;">2020 2학기 기말고사</a>
             </div>
 
-            <div onClick="dev_Modal('SRC')" style="font-family: KyoboHand; margin-left: 20px; float: left; color: darkgray" >
+            <div onClick="dev_Modal('SRC')" style="font-family: KyoboHand; margin-left: 25px; float: left; color: darkgray" >
                 <a>[자료 제공]</a>
                 <br>
                 <a>Neis</a>
                 <br>
                 <a>눈누</a>
+                <br>
+                <a>unsplash</a>
                 <br>
                 <a>ICOOON MONO</a>
                 <br>
@@ -550,6 +618,8 @@
                     <div style="padding-left: 5%">
                         <a style="color: mediumvioletred">Park H J</a>
                         <br>
+                        <a style="color: midnightblue">Jeong D Y</a>
+                        <br>
                         <a style="color: red">G</a><a style="color: blue">W</a><a style="color: yellow">N</a><a style="color: rgb(194,181, 157)">U</a>
                         <a style="color: lightskyblue">과학기술대학교 10대 학생회</a>
                         <a style="color: deepskyblue">아우름</a>
@@ -581,7 +651,7 @@
                 </div>
 
                 <!--자료 제공-->
-                <div id="source" style="font-family: KyoboHand; font-size: 150%; display: none; line-height: 35px">
+                <div id="source" style="font-family: KyoboHand; font-size: 130%; display: none; line-height: 35px">
                     <h1 style="padding-left: 35%; margin-top: 20px; color: salmon">자료 제공</h1>
                     <div style="padding-left: 5%">
                         <a>Neis API 학사일정 제공</a>
@@ -590,12 +660,15 @@
                         <br>
                         <a style="margin-left: 5%"> - 교보문고, 카페24, 우아한형제들</a>
                         <br>
+                        <a>unsplash를 통한 이미지 제공</a>
+                        <br>
+                        <a style="margin-left: 5%"> - Sharon McCutcheon</a>
+                        <br>
                         <a>ICOOON MONO 아이콘 제공</a>
                         <br>
                         <a>김종헌님 아이콘 제공</a>
                         <br>
-                        <br>
-                        <a>모두 감사합니다</a>
+                        <strong><a>모두 감사합니다</a></strong>
                     </div>
                 </div>
             </div>
